@@ -1,9 +1,11 @@
+### @export "imports"
 import numpy as num
 import matplotlib
 import matplotlib.pyplot as plt
 import math
 from scipy.integrate import trapz
 
+### @export "kernel"
 def kernel(sigma):
     sz = 6*num.ceil(sigma)+1
     x = num.linspace(-3*sigma, 3*sigma, sz);

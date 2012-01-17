@@ -2,6 +2,7 @@
     "*.tex|jinja" : { "allinputs" : true },
     "*.bib" : {},
     "*.py|pyg|l": {},
+    "*.py|fn|idio|pycon|pyg|l" : {},
     "*.c|pyg|l": {},
     "*.h|pyg|l": {},
     "*.sh|pyg|l": {},
