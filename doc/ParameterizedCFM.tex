@@ -1,0 +1,219 @@
+\documentclass[preprint,review,12pt]{elsarticle}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{fullpage}
+\usepackage{color}
+\usepackage{subfigure}
+ 
+\journal{Journal of XYZ}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{Simultaneous Optimization of Cost Function Masks and
+  Registration Transforms}
+
+\author[CLW]{Christopher L. Wyatt}
+
+\address[CLW]{Bradley Department of Electrical and Computer Engineering, Virginia Tech, Blacksburg, VA, USA}
+
+\begin{abstract}
+  Most registration algorithms are cast as optimization problems. In
+  practice registration objectives often require cost function masks
+  (CFMs) to exclude regions of topological change in the image
+  levelsets caused by anatomical variation or pathology. The CFM must
+  be specified a-priori, usually from a manual or semi-manual
+  segmentation process. This paper describes and approach to
+  parameterization of CFMs using levelsets and thier optimization as
+  part of the registration process. TODO: the significance of the
+  results.
+\end{abstract}
+
+\begin{keyword}
+Registration, Cost Function Mask
+\end{keyword}
+
+\end{frontmatter}
+
+\section{Introduction}
+\cite{Crum2003} is a place to start.
+
+\section{Methods}
+Define images as $I_0, I_1 : R^n \mapsto R$ as the source (moving) and
+target (fixed) image respectively, and $x \in R^n$.
+\par
+Define a transform as $\Phi : R^n \mapsto R^n$ with suitable
+properties, e.g. a diffeomorphism.
+\par
+Define a cost function mask $\Omega \subset R^n$.
+\par
+Define an aggregate registration objective
+\[
+f(\Phi,\Omega) = \int_\Omega \|\Phi\|_J dx^n + \lambda \int_\Omega \|
+I_1 - (I_0 \circ \Phi) \|_M dx^n
+\]
+where $\|\bullet\|_J$ and $\|\bullet\|_M$ are chosen norms for the transform and image residual. 
+\par
+Let $\Omega$ be parameterized by the levelset $\Omega \equiv \left\{
+  x\in R^n | \phi(x,\theta) < 0 \right\}$. Then
+\[
+f(\Phi,\theta) = \int (1- H(\phi(x,\theta)))\|\Phi\|_J dx^n + \lambda \int (1-H(\phi(x,\theta)))\|
+I_1 - (I_0 \circ \Phi) \|_M dx^n
+\]
+where $H()$ is the Heaviside function or a continuous
+approximation. The trivial minima of the above functional is when
+$\Omega = \varnothing$ or $\phi(x,\theta) < 0$ everywhere, so we add a penalty term
+measuring the size of $\Omega$.
+\begin{eqnarray*}
+f(\Phi,\theta) = & \int H(\phi(x,\theta))\|\Phi\|_J dx^n \\
+& + \lambda \int H(\phi(x,\theta))\|I_1 - (I_0 \circ \Phi) \|_M dx^n \\
+& + \mu \int H(\phi(x,\theta)) dx^n
+\end{eqnarray*}
+
+\subsection{Levelset parameterization}
+The levelset defining the CFM is parameterized using radial basis
+functions from \cite{Aghasi2011}.
+
+\[
+\theta = [\alpha, \beta, \chi]
+\] 
+
+\[
+\phi(x,[\alpha, \beta, \chi]) = \sum_{j = 1}^{m_0} \alpha_j
+\psi(\|\beta_j(x - \chi_j)\|) 
+\]
+
+We use the $C^2$ compactly supported RBF
+\[
+\psi_{n}(r) = \left ( \max{\left ( 0,1 - r \right )} \right )^{\left\lfloor
+  \frac{n}{2}\right\rfloor + 2}\left ( \left ( \left\lfloor
+  \frac{n}{2}\right\rfloor + 2 \right ) r+1 \right ) 
+\]
+
+\subsection{Heaviside Approximation}
+
+\[
+H_\epsilon(z) = \frac{1}{2} \left (  1 + \frac{2}{\pi}
+  \arctan{\frac{\pi z}{\epsilon}} \right )
+\]
+
+\section{Examples}
+
+\subsection{one-dimensional with translation }
+In order to gain some intution about the registration process we begin
+with a simple example.
+\par
+Consider one-dimensional images $I_0(x)$ and $I_1(x)$ and a
+transform, $\Phi(x) = x - \tau$ for translation parameter $\tau$.
+\par
+Let $\theta = [\alpha, \beta, \chi]$, i.e. a single term in the RBF
+summation.
+\par
+Assume the norm for the transform and residual are both the squared two-norm.
+Then the registation objective is given by:
+
+\begin{eqnarray*}
+f(\tau,\theta) = & \int H(\phi(x,\theta)) \tau^2 dx \\
+& + \lambda \int H(\phi(x,\theta))\left (I_1(x) - (I_0(x-\tau)) \right )^2dx \\
+& + \mu \int H(\phi(x,\theta)) dx
+\end{eqnarray*}
+
+The first variation of this objective with respect to the parameters
+$\tau, \alpha, \beta, \chi$ is:
+
+\begin{eqnarray*}
+\frac{\partial f}{\partial \tau} = & 2\tau\int H(\phi(x,\theta)) dx \\
+& + 2\lambda\tau \int H(\phi(x,\theta))\left (I_1(x) - (I_0(x-\tau))
+\right )\frac{\partial I_0}{\partial y} dx
+\end{eqnarray*}
+where $y = x - \tau$ is the moving frame.
+\begin{eqnarray*}
+\frac{\partial f}{\partial \alpha} = & \tau^2\int \frac{\partial
+  H}{\partial \phi}\frac{\partial \phi}{\partial \alpha} dx \\
+& + \lambda \int \left (I_1(x) - (I_0(x-\tau)) \right )^2 \frac{\partial
+  H}{\partial \phi}\frac{\partial \phi}{\partial \alpha} dx \\
+& + \mu \int \frac{\partial
+  H}{\partial \phi}\frac{\partial \phi}{\partial \alpha} dx
+\end{eqnarray*}
+
+\begin{eqnarray*}
+\frac{\partial f}{\partial \beta} = & \tau^2\int \frac{\partial
+  H}{\partial \phi}\frac{\partial \phi}{\partial \beta} dx \\
+& + \lambda \int \left (I_1(x) - (I_0(x-\tau)) \right )^2 \frac{\partial
+  H}{\partial \phi}\frac{\partial \phi}{\partial \beta} dx \\
+& + \mu \int \frac{\partial
+  H}{\partial \phi}\frac{\partial \phi}{\partial \beta} dx
+\end{eqnarray*}
+
+\begin{eqnarray*}
+\frac{\partial f}{\partial \chi} = & \tau^2\int \frac{\partial
+  H}{\partial \phi}\frac{\partial \phi}{\partial \chi} dx \\
+& + \lambda \int \left (I_1(x) - (I_0(x-\tau)) \right )^2 \frac{\partial
+  H}{\partial \phi}\frac{\partial \phi}{\partial \chi} dx \\
+& + \mu \int \frac{\partial
+  H}{\partial \phi}\frac{\partial \phi}{\partial \chi} dx
+\end{eqnarray*}
+
+\par
+Given the approximation $H_\epsilon(z)$, its derivative is
+\[
+\frac{\partial H_\epsilon(z)}{\partial z} \equiv \delta_\epsilon(z) = 
+\frac{\epsilon}{\epsilon^2 + (\pi z)^2}
+\]
+\par
+This leaves the partial derivatives of the RBF 
+\[
+\phi(x,\alpha,\beta,\chi) = \alpha \psi \left [ ((\beta(x-\chi))^2)^\frac{1}{2}\right ]
+\]
+\[
+\psi[r] = \left ( \max{(0,1-r)} \right )^2(2r-1)
+\]
+w.r.t. the parameters $\alpha, \beta, \chi$.
+
+\[
+\frac{\partial \phi}{\partial \alpha} = \psi \left [ ((\beta(x-\chi))^2)^\frac{1}{2}\right ]
+\]
+
+\[
+\frac{\partial \phi}{\partial \beta} = \alpha \frac{\partial
+  \psi}{\partial r} \frac{\partial r}{\partial \beta}
+\]
+
+\[
+\frac{\partial \phi}{\partial \chi} = \alpha \frac{\partial
+  \psi}{\partial r} \frac{\partial r}{\partial \chi}
+\]
+Continuing in the chain
+\[
+\frac{\partial \psi}{\partial r} = \left\{ 
+\begin{array}{l@{\quad:\quad}l}
+4r^2 - 9r + 4 & (1-r) > 0\\
+0 & \mbox{else}
+\end{array} \right.
+\]
+\[
+\frac{\partial r}{\partial \beta} = 
+\frac{\beta(x-\chi)^2}{((\beta(x-\chi))^2)^\frac{1}{2}}
+\]
+\[
+\frac{\partial r}{\partial \chi} = 
+\frac{-\beta^2(x-\chi)}{((\beta(x-\chi))^2)^\frac{1}{2}}
+\]
+
+\section{Results}
+
+\section{Discussion}
+
+\section*{Appendix}
+Put extra details here.
+
+\section*{Acknowledgment}
+We would like to thank Foo. Include pertinent grant numbers.
+
+\bibliographystyle{elsarticle-num}
+\bibliography{references}
+\end{document}
