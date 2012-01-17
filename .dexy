@@ -10,7 +10,7 @@
     "Makefile.*": {},
     "*.sh-session|pyg|l": {}, 
     "*.out": {},
-    "*.css|jinja" : {  },
-    "*.cfg|jinja" : {  },
+    "*.css|jinja" : {},
+    "*.cfg|jinja" : {},
     "*.txt" : {}
 }
