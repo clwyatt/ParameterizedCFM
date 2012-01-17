@@ -2,7 +2,7 @@ SOURCE=paper
 
 paper:
 	dexy
-	${MAKE} -C output -f Makefile.latex $(SOURCE)
+	${MAKE} -C output -f Makefile.latex
 
 html: 
 	cd output && htlatex $(SOURCE).tex
