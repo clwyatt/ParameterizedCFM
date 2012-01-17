@@ -2,8 +2,7 @@ SOURCE=paper
 
 paper:
 	dexy
-	cp Makefile.latex output/
-	${MAKE} -C output -f Maefile.latex
+	${MAKE} -C output -f Makefile.latex $(SOURCE)
 
 html: 
 	cd output && htlatex $(SOURCE).tex
@@ -12,6 +11,6 @@ clean:
 	dexy reset
 
 realclean: clean
-	rm -rf artifacts log
+	rm -rf artifacts logs
 
 
