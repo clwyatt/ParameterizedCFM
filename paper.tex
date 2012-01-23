@@ -21,6 +21,8 @@ breakatwhitespace=true,
 numbers=left
 }
 
+\newcommand{\vect}[1]{\boldsymbol{#1}}
+
 \title{Simultaneous Optimization of Cost Function Masks and
   Registration Transforms}
 
@@ -46,50 +48,55 @@ numbers=left
 \cite{Crum2003} is a place to start.
 
 \section{Methods}
-Define images as \(I_0, I_1 : R^n \mapsto R\) as the source (moving) and
-target (fixed) image respectively, and \(x \in R^n\).
+Define a region of support \(\Omega \subset R^n\) for images \(I_0,
+I_1 : \Omega \mapsto R\) as the source (moving) and target (fixed)
+image respectively, and \(x \in \Omega\).
 \par
-Define a transform as \(\Phi : R^n \mapsto R^n\) with suitable
+Define a transform as \(\Phi : \Omega \mapsto \Omega \) with suitable
 properties, e.g. a diffeomorphism.
 \par
-Define a cost function mask \(\Omega \subset R^n\).
+Define a cost function mask \(\Gamma \subset \Omega\), where the subset
+\( \{\Omega - \Gamma \}\) indicates an area of a topology change (a
+topological defect).
 \par
 Define an aggregate registration objective
 \begin{equation}
-f(\Phi,\Omega) = \int_\Omega \|\Phi\|_J dx^n + \lambda \int_\Omega \|
+f(\Phi,\Gamma) = \int_\Gamma \|\Phi\|_J dx^n + \lambda \int_\Gamma \|
 I_1 - (I_0 \circ \Phi) \|_M dx^n
 \end{equation}
 where \(\|\bullet\|_J\) and \(\|\bullet\|_M\) are chosen norms for the transform and image residual. 
 \par
-Let \(\Omega\) be parameterized by the levelset \(\Omega \equiv \left\{
-  x\in R^n | \phi(x,\theta) < 0 \right\}\). Then
+Let \(\Gamma\) be parameterized by the levelset \(\Gamma \equiv \left\{
+  x\in |\Omega | \phi(x,\vect{\theta}) < 0 \right\}\). In other words the
+positive portion of the levelset is a segmenttion of the topological defect. Then
 \begin{equation}
-f(\Phi,\theta) = \int (1- H(\phi(x,\theta)))\|\Phi\|_J dx^n + \lambda \int (1-H(\phi(x,\theta)))\|
+f(\Phi,\vect{\theta}) = \int H(-\phi(x,\vect{\theta}))\|\Phi\|_J dx^n + \lambda \int H(-\phi(x,\vect{\theta}))\|
 I_1 - (I_0 \circ \Phi) \|_M dx^n
 \end{equation}
-where \(H()\) is the Heaviside function or a continuous
-approximation. The trivial minima of the above functional is when
-\( \Omega = \varnothing \) or \(\phi(x,\theta) < 0\) everywhere, so we add a penalty term
-measuring the size of \(\Omega\).
-\begin{eqnarray*}
-f(\Phi,\theta) = & \int H(\phi(x,\theta))\|\Phi\|_J dx^n \\
-& + \lambda \int H(\phi(x,\theta))\|I_1 - (I_0 \circ \Phi) \|_M dx^n \\
-& + \mu \int H(\phi(x,\theta)) dx^n
-\end{eqnarray*}
+where \(H()\) is the Heaviside function \( H(z) =
+\frac{1}{2}(1+\mbox{sign}(z)) \) and \( (1-H(z)) = H(-z) \). The trivial minima of the above functional
+is when \( \Gamma = \varnothing \) or \(\phi(x,\vect{\theta}) > 0\)
+everywhere, so we add a penalty term measuring the size of \(\{\Omega-\Gamma\}\).
+\begin{equation}
+f(\Phi,\vect{\theta}) = \int H(-\phi(x,\vect{\theta}))\|\Phi\|_J dx^n 
++ \lambda \int H(-\phi(x,\vect{\theta}))\|I_1 - (I_0 \circ \Phi) \|_M dx^n 
++ \mu \int H(\phi(x,\vect{\theta})) dx^n
+\end{equation}
 
 \subsection{Levelset parameterization}
 The levelset defining the CFM is parameterized using radial basis
 functions from \cite{Aghasi2011}.
 
 \begin{equation}
-\theta = [\alpha, \beta, \chi]
+\vect{\theta} = [\vect{\alpha}, \vect{\beta}, \vect{\chi}]
 \end{equation} 
 
 \begin{equation}
-\phi(x,[\alpha, \beta, \chi]) = \sum_{j = 1}^{m_0} \alpha_j
-\psi(\|\beta_j(x - \chi_j)\|) 
+\phi(x,[\vect{\alpha}, \vect{\beta}, \vect{\chi}]) = \sum_{j = 1}^{m_0} \alpha_j
+\psi(\|\beta_j(x - \vect{\chi_j})\|) 
 \end{equation}
-
+where \( \vect{\chi_j} \in R^n\).
+\par
 We use the \(C^2\) compactly supported RBF
 \begin{equation}
 \psi_{n}(r) = \left ( \max{\left ( 0,1 - r \right )} \right )^{\left\lfloor
@@ -106,59 +113,59 @@ H_\epsilon(z) = \frac{1}{2} \left (  1 + \frac{2}{\pi}
 
 \section{Examples}
 
-\subsection{one-dimensional with translation }
+\subsection{One-dimensional images with translation }
 In order to gain some intution about the registration process we begin
 with a simple example.
 \par
 Consider one-dimensional images \(I_0(x)\) and \(I_1(x)\) and a
 transform, \(\Phi(x) = x - \tau\) for translation parameter \(\tau\).
 \par
-Let \(\theta = [\alpha, \beta, \chi]\), i.e. a single term in the RBF
-summation.
+Let \(\vect{\theta} = [\vect{\alpha}, \vect{\beta}, \vect{\chi}]\), with three terms in the RBF
+summation (i.e. \(m_0 = 3\) ).
 \par
 Assume the norm for the transform and residual are both the squared two-norm.
 Then the registation objective is given by:
 
 \begin{eqnarray*}
-f(\tau,\theta) = & \int H(\phi(x,\theta)) \tau^2 dx \\
-& + \lambda \int H(\phi(x,\theta))\left (I_1(x) - (I_0(x-\tau)) \right )^2dx \\
-& + \mu \int H(\phi(x,\theta)) dx
+f(\tau,\vect{\theta}) = & \int H(-\phi(x,\vect{\theta})) \tau^2 dx \\
+& + \lambda \int H(-\phi(x,\vect{\theta}))\left (I_1(x) - (I_0(x-\tau)) \right )^2dx \\
+& + \mu \int H(\phi(x,\vect{\theta})) dx
 \end{eqnarray*}
 
 The first variation of this objective with respect to the parameters
-\(\tau, \alpha, \beta, \chi\) is:
+\(\tau, \vect{\alpha}, \vect{\beta}, \vect{\chi}\) is:
 
 \begin{eqnarray*}
-\frac{\partial f}{\partial \tau} = & 2\tau\int H(\phi(x,\theta)) dx \\
-& + 2\lambda\tau \int H(\phi(x,\theta))\left (I_1(x) - (I_0(x-\tau))
+\frac{\partial f}{\partial \tau} = & 2\tau\int H(-\phi(x,\vect{\theta})) dx \\
+& + 2\lambda\tau \int H(-\phi(x,\vect{\theta}))\left (I_1(x) - (I_0(x-\tau))
 \right )\frac{\partial I_0}{\partial y} dx
 \end{eqnarray*}
 where \(y = x - \tau\) is the moving frame.
 \begin{eqnarray*}
-\frac{\partial f}{\partial \alpha} = & \tau^2\int \frac{\partial
-  H}{\partial \phi}\frac{\partial \phi}{\partial \alpha} dx \\
-& + \lambda \int \left (I_1(x) - (I_0(x-\tau)) \right )^2 \frac{\partial
-  H}{\partial \phi}\frac{\partial \phi}{\partial \alpha} dx \\
+\frac{\partial f}{\partial \alpha_j} = & \tau^2\int -\frac{\partial
+  H}{\partial \phi}\frac{\partial \phi}{\partial \alpha_j} dx \\
+& + \lambda \int -\left (I_1(x) - (I_0(x-\tau)) \right )^2 \frac{\partial
+  H}{\partial \phi}\frac{\partial \phi}{\partial \alpha_j} dx \\
 & + \mu \int \frac{\partial
-  H}{\partial \phi}\frac{\partial \phi}{\partial \alpha} dx
+  H}{\partial \phi}\frac{\partial \phi}{\partial \alpha_j} dx
 \end{eqnarray*}
 
 \begin{eqnarray*}
-\frac{\partial f}{\partial \beta} = & \tau^2\int \frac{\partial
-  H}{\partial \phi}\frac{\partial \phi}{\partial \beta} dx \\
-& + \lambda \int \left (I_1(x) - (I_0(x-\tau)) \right )^2 \frac{\partial
-  H}{\partial \phi}\frac{\partial \phi}{\partial \beta} dx \\
+\frac{\partial f}{\partial \beta_j} = & \tau^2\int -\frac{\partial
+  H}{\partial \phi}\frac{\partial \phi}{\partial \beta_j} dx \\
+&+ \lambda \int -\left (I_1(x) - (I_0(x-\tau)) \right )^2 \frac{\partial 
+  H}{\partial \phi}\frac{\partial \phi}{\partial \beta_j} dx \\
 & + \mu \int \frac{\partial
-  H}{\partial \phi}\frac{\partial \phi}{\partial \beta} dx
+  H}{\partial \phi}\frac{\partial \phi}{\partial \beta_j} dx
 \end{eqnarray*}
 
 \begin{eqnarray*}
-\frac{\partial f}{\partial \chi} = & \tau^2\int \frac{\partial
-  H}{\partial \phi}\frac{\partial \phi}{\partial \chi} dx \\
-& + \lambda \int \left (I_1(x) - (I_0(x-\tau)) \right )^2 \frac{\partial
-  H}{\partial \phi}\frac{\partial \phi}{\partial \chi} dx \\
+\frac{\partial f}{\partial \chi_j} = & \tau^2\int -\frac{\partial
+  H}{\partial \phi}\frac{\partial \phi}{\partial \chi_j} dx \\
+& + \lambda \int -\left (I_1(x) - (I_0(x-\tau)) \right )^2 \frac{\partial
+  H}{\partial \phi}\frac{\partial \phi}{\partial \chi_j} dx \\
 & + \mu \int \frac{\partial
-  H}{\partial \phi}\frac{\partial \phi}{\partial \chi} dx
+  H}{\partial \phi}\frac{\partial \phi}{\partial \chi_j} dx
 \end{eqnarray*}
 
 \par
@@ -170,49 +177,66 @@ Given the approximation \(H_\epsilon(z)\), its derivative is
 \par
 This leaves the partial derivatives of the RBF 
 \begin{equation}
-\phi(x,\alpha,\beta,\chi) = \alpha \psi \left [
-  ((\beta(x-\chi))^2)^{\frac{1}{2}} \right ]
+\phi(x,\vect{\alpha},\vect{\beta},\vect{\chi}) = \sum_{j}^{3}\alpha_j \psi \left [
+  ((\beta_j(x-\chi_j))^2)^{\frac{1}{2}} \right ]
 \end{equation}
+where
 \begin{equation}
-\psi[r] = \left ( \max{(0,1-r)} \right )^2(2r-1)
+\psi[r] = \left ( \max{(0,1-r)} \right )^2(2r+1)
 \end{equation}
-w.r.t. the parameters \(\alpha, \beta, \chi\).
+w.r.t. the parameters \(\vect{\alpha}, \vect{\beta}, \chi\).
 
 \begin{equation}
-\frac{\partial \phi}{\partial \alpha} = \psi \left [ ((\beta(x-\chi))^2)^{\frac{1}{2}}\right ]
-\end{equation}
-
-\begin{equation}
-\frac{\partial \phi}{\partial \beta} = \alpha \frac{\partial
-  \psi}{\partial r} \frac{\partial r}{\partial \beta}
+\frac{\partial \phi}{\partial \alpha_j} = \psi \left [ ((\beta_j(x-\chi_j))^2)^{\frac{1}{2}}\right ]
 \end{equation}
 
 \begin{equation}
-\frac{\partial \phi}{\partial \chi} = \alpha \frac{\partial
-  \psi}{\partial r} \frac{\partial r}{\partial \chi}
+\frac{\partial \phi}{\partial \beta_j} = \alpha_j \frac{\partial
+  \psi}{\partial r} \frac{\partial r}{\partial \beta_j}
+\end{equation}
+
+\begin{equation}
+\frac{\partial \phi}{\partial \chi_j} = \alpha_j \frac{\partial
+  \psi}{\partial r} \frac{\partial r}{\partial \chi_j}
 \end{equation}
 Continuing in the chain
 \begin{equation}
-\frac{\partial \psi}{\partial r} = \left\{ 
-\begin{array}{l@{\quad:\quad}l}
-4r^2 - 9r + 4 & (1-r) > 0\\
-0 & \mbox{else}
-\end{array} \right.
-\end{equation}
-\begin{equation}
-\frac{\partial r}{\partial \beta} = 
-\frac{\beta(x-\chi)^2}{((\beta(x-\chi))^2)^{\frac{1}{2}}}
-\end{equation}
-\begin{equation}
-\frac{\partial r}{\partial \chi} = 
-\frac{-\beta^2(x-\chi)}{((\beta(x-\chi))^2)^{\frac{1}{2}}}
+\frac{\partial \psi}{\partial r} = -6r \max{(0,1-r)}\\
 \end{equation}
 
-\subsection{implementation}
+\begin{equation}
+\frac{\partial r}{\partial \beta_j} = 
+\frac{\beta_j(x-\chi_j)^2}{((\beta_j(x-\chi_j))^2)^{\frac{1}{2}}}
+\end{equation}
+\begin{equation}
+\frac{\partial r}{\partial \chi_j} = 
+\frac{-\beta_j^2(x-\chi_j)}{((\beta_j(x-\chi_j))^2)^{\frac{1}{2}}}
+\end{equation}
+
+\subsubsection{Python Implementation}
 First we import what we need
 << d['test1d.py|fn|idio|pycon|pyg|l']['imports'] >>
+Then we define some simple digital phantoms for testing
+<< d['test1d.py|fn|idio|pycon|pyg|l']['phantom0'] >>
+<< d['test1d.py|fn|idio|pycon|pyg|l']['phantom1'] >>
+<< d['test1d.py|fn|idio|pycon|pyg|l']['phantom2'] >>
+where the smoothing kernel is defined as
+<< d['test1d.py|fn|idio|pycon|pyg|l']['kernel'] >>
+These are shown in Figure X.
 
-\section{Results}
+Next we define the function to compute the parameterized levelset
+<< d['test1d.py|fn|idio|pycon|pyg|l']['levelset'] >>
+using the compactly supported radial basis function of degree one
+<< d['test1d.py|fn|idio|pycon|pyg|l']['csrbf'] >>
+Then the heaviside function with a default \( \epsilon \)
+<< d['test1d.py|fn|idio|pycon|pyg|l']['H'] >>
+Finally the objective function is computed, splitting it into three
+local functions
+
+We then write a function to run a test using the phantoms with a fixed
+translation and the bfgs.
+
+\subsection{Results}
 
 \section{Discussion}
 
