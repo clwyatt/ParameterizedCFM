@@ -100,8 +100,8 @@ where \( \vect{\chi_j} \in R^n\).
 We use the \(C^2\) compactly supported RBF
 \begin{equation}
 \psi_{n}(r) = \left ( \max{\left ( 0,1 - r \right )} \right )^{\left\lfloor
-  \frac{n}{2}\right\rfloor + 2}\left ( \left ( \left\lfloor
-  \frac{n}{2}\right\rfloor + 2 \right ) r+1 \right ) 
+  \frac{n}{2}\right\rfloor + 3}\left ( \left ( \left\lfloor
+  \frac{n}{2}\right\rfloor + 3 \right ) r+1 \right ) 
 \end{equation}
 
 \subsection{Heaviside Approximation}
@@ -182,7 +182,7 @@ This leaves the partial derivatives of the RBF
 \end{equation}
 where
 \begin{equation}
-\psi[r] = \left ( \max{(0,1-r)} \right )^2(2r+1)
+\psi[r] = \left ( \max{(0,1-r)} \right )^3(3r+1)
 \end{equation}
 w.r.t. the parameters \(\vect{\alpha}, \vect{\beta}, \chi\).
 
@@ -201,7 +201,8 @@ w.r.t. the parameters \(\vect{\alpha}, \vect{\beta}, \chi\).
 \end{equation}
 Continuing in the chain
 \begin{equation}
-\frac{\partial \psi}{\partial r} = -6r \max{(0,1-r)}\\
+\frac{\partial \psi}{\partial r} = 3\left [ \max{(0,1-r)}^3 -
+  \max{(0,1-r)}^2(3r+1) \right ]\\
 \end{equation}
 
 \begin{equation}

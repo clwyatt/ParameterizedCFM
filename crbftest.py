@@ -5,14 +5,14 @@ import matplotlib.pyplot as plt
 def csrbf(r):
     """compactly supported radial basis function of degree one"""
     def f(rp):
-        return num.power((num.maximum(0, 1-rp)), 2)*(2*rp+1)
+        return num.power((num.maximum(0, 1-rp)), 3)*(3*rp+1)
     fvec = num.vectorize(f)
     return fvec(r)
 
 def dcsrbf(r):
     """derivative compactly supported radial basis function of degree one"""
     def f(rp):
-        return -6*rp*(num.maximum(0, 1-rp))
+        return 3*(num.power(num.maximum(0, 1-rp), 3) - num.power(num.maximum(0, 1-rp),2)*(3*rp+1))
     fvec = num.vectorize(f)
     return fvec(r)
 

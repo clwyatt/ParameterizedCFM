@@ -16,6 +16,6 @@ clean:
 	dexy reset
 
 realclean: clean
-	rm -rf artifacts logs
+	rm -rf artifacts logs *.pyc
 
 
