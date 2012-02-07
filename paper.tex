@@ -214,28 +214,6 @@ Continuing in the chain
 \frac{-\beta_j^2(x-\chi_j)}{((\beta_j(x-\chi_j))^2)^{\frac{1}{2}}}
 \end{equation}
 
-\subsubsection{Python Implementation}
-First we import what we need
-<< d['test1d.py|fn|idio|pycon|pyg|l']['imports'] >>
-Then we define some simple digital phantoms for testing
-<< d['test1d.py|fn|idio|pycon|pyg|l']['phantom0'] >>
-<< d['test1d.py|fn|idio|pycon|pyg|l']['phantom1'] >>
-<< d['test1d.py|fn|idio|pycon|pyg|l']['phantom2'] >>
-where the smoothing kernel is defined as
-<< d['test1d.py|fn|idio|pycon|pyg|l']['kernel'] >>
-These are shown in Figure X.
-
-Next we define the function to compute the parameterized levelset
-<< d['test1d.py|fn|idio|pycon|pyg|l']['levelset'] >>
-using the compactly supported radial basis function of degree one
-<< d['test1d.py|fn|idio|pycon|pyg|l']['csrbf'] >>
-Then the heaviside function with a default \( \epsilon \)
-<< d['test1d.py|fn|idio|pycon|pyg|l']['H'] >>
-Finally the objective function is computed, splitting it into three
-local functions
-
-We then write a function to run a test using the phantoms with a fixed
-translation and the bfgs.
 
 \subsection{Results}
 
