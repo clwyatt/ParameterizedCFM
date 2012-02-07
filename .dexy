@@ -3,15 +3,7 @@
     "*.bib" : {},
     "*.py|pyg|l": {},
     "*.py|fn|idio|pycon|pyg|l" : {},
-    "*.c|pyg|l": {},
-    "*.h|pyg|l": {},
-    "*.sh|pyg|l": {},
-    "*.sql|pyg|l": {},
-    "*.conf": {},
     "Makefile.*": {},
-    "*.sh-session|pyg|l": {}, 
-    "*.out": {},
-    "*.css|jinja" : {},
-    "*.cfg|jinja" : {},
+    "*.cfg" : {},
     "*.txt" : {}
 }
