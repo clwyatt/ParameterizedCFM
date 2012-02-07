@@ -1,0 +1,16 @@
+Simultaneous Optimization of Cost Function Masks and Registration Transforms
+
+Most registration algorithms are cast as optimization problems. In
+practice registration objectives often require cost function masks
+(CFMs) to exclude regions of topological change in the image
+levelsets caused by anatomical variation or pathology. The CFM must
+be specified a-priori, usually from a manual or semi-manual
+segmentation process. This project seeks an approach to
+parameterization of CFMs using levelsets and thier optimization as
+part of the registration process.
+
+
+
+
+
+
