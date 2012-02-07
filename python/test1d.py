@@ -185,7 +185,7 @@ def test():
 
     m0 = 7
     theta0 = num.zeros(1+m0*3)
-    theta0[0] = -step*100 #initial translation
+    theta0[0] = 0 #initial translation
     theta0[1] = -0.2 #initial alpha_1
     theta0[2] = 0.2 #initial alpha_2
     theta0[3] = -0.2 #initial alpha_3
@@ -198,17 +198,20 @@ def test():
 
     theta0[15:23] = num.linspace(-1,1, m0) #initial gamma_j
 
+    print wrapper(theta0, M, T, lam, mu)
+    print gradf(theta0, M, T, lam, mu)
+    
 #    df = gradf(theta0, M, T, lam, mu)
 #    print num.size(theta0), " ", num.size(df)
 #    print df
     
 #    opt = theta0
-    opt = fmin_bfgs(wrapper,
-                    theta0,
-                    gradf,
-                    args=(M, T, lam, mu),
-                    callback=monitor,
-                    maxiter=50)
+    # opt = fmin_bfgs(wrapper,
+    #                 theta0,
+    #                 gradf,
+    #                 args=(M, T, lam, mu),
+    #                 callback=monitor,
+    #                 maxiter=50)
 
     # opt = fmin_bfgs(wrapper,
     #                 theta0,
@@ -216,28 +219,28 @@ def test():
     #                 callback=monitor,
     #                 maxiter=20)
 
-    print "start"
-    print "     params = ", theta0
-    print "     grad = ", gradf(theta0, M, T, lam, mu)
-    print "     objective = ", wrapper(theta0, M, T, lam, mu)
-    print "     ROI size = ", trapz(heaviside(phi(x,theta0[1:8], theta0[8:15], theta0[15:23])), dx=step)
-    print "end"
-    print "   params = ", opt
-    print "   grad = ", gradf(opt, M, T, lam, mu)
-    print "   objective = ", wrapper(opt, M, T, lam, mu)
-    print "   ROI size = ", trapz(heaviside(phi(x,opt[1:8], opt[8:15], opt[15:23])), dx=step)
+    # print "start"
+    # print "     params = ", theta0
+    # print "     grad = ", gradf(theta0, M, T, lam, mu)
+    # print "     objective = ", wrapper(theta0, M, T, lam, mu)
+    # print "     ROI size = ", trapz(heaviside(phi(x,theta0[1:8], theta0[8:15], theta0[15:23])), dx=step)
+    # print "end"
+    # print "   params = ", opt
+    # print "   grad = ", gradf(opt, M, T, lam, mu)
+    # print "   objective = ", wrapper(opt, M, T, lam, mu)
+    # print "   ROI size = ", trapz(heaviside(phi(x,opt[1:8], opt[8:15], opt[15:23])), dx=step)
     
-    plt.figure(1)
-    plt.plot(x, heaviside(phi(x, theta0[1:8], theta0[8:15], theta0[15:23])))
-    plt.xlabel('x')
+    # plt.figure(1)
+    # plt.plot(x, heaviside(phi(x, theta0[1:8], theta0[8:15], theta0[15:23])))
+    # plt.xlabel('x')
 
-    plt.figure(2)
-    plt.plot(x, heaviside(phi(x, opt[1:8], opt[8:15], opt[15:23])))
-    plt.xlabel('x')
+    # plt.figure(2)
+    # plt.plot(x, heaviside(phi(x, opt[1:8], opt[8:15], opt[15:23])))
+    # plt.xlabel('x')
 
 
 
-    plt.show()
+    # plt.show()
 
 
     
