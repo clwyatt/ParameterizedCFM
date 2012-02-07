@@ -15,4 +15,6 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_SOURCE_DIR}/Utilities/json
   )
 
-SUBDIRS(Utilities Code)
+ENABLE_TESTING()
+
+SUBDIRS(Utilities Code Testing)
