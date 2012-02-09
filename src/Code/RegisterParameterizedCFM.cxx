@@ -33,7 +33,12 @@ using std::clog;
 using std::endl;
 
 #include <string>
+using std::string;
+
 #include <cassert>
+
+#include <fstream>
+using std::ifstream;
 
 #include <itkImageFileReader.h>
 #include <itkImageFileWriter.h>
@@ -55,10 +60,10 @@ public:
   RegisterParameterizedCFMApp(int argc, char** argv)
     {
       // command line args
-      vul_arg<std::string> target(0, "Target Input File");
-      vul_arg<std::string> source(0, "Source Input File");
-      vul_arg<std::string> output("-o", "Output File", "output.nii");
-      vul_arg<std::string> conffile("-c", "Configuration File", "local.json");
+      vul_arg<string> target(0, "Target Input File");
+      vul_arg<string> source(0, "Source Input File");
+      vul_arg<string> output("-o", "Output File", "output.nii");
+      vul_arg<string> conffile("-c", "Configuration File", "local.json");
       vul_arg_parse(argc, argv);
 
       targetFileName = target();
@@ -68,17 +73,28 @@ public:
 
     }
 
-  void parse_config()
+  bool parse_config()
     {
+      ifstream infile(configurationFileName.c_str());
+      if( infile.fail() )
+	{
+	cout << "Cannot open configuration file." << endl;
+	return false;
+	}
+
       Json::Value root;
       Json::Reader reader;
-      bool parsingSuccessful = reader.parse( configurationFileName, root );
+      bool parsingSuccessful = reader.parse( infile, root );
+      infile.close();
+
       if ( !parsingSuccessful )
 	{
 	std::cout  << "Failed to parse configuration\n"
 		   << reader.getFormatedErrorMessages();
+	return false;
 	}
 
+      // TODO add error handling below
       const Json::Value bumps = root["number-bumps"];
       numberOfBumpsX = bumps[Json::UInt(0)].asInt();
       numberOfBumpsY = bumps[Json::UInt(1)].asInt();
@@ -88,6 +104,8 @@ public:
       regularizerWeight = root["regularizer-weight"].asDouble();
       matchingWeight = root["matching-weight"].asDouble();
       roisizeWeight = root["roisize-weight"].asDouble();
+
+      return true;
     }
 
   int run()
@@ -116,6 +134,8 @@ public:
 	std::cerr << excp << std::endl;
 	return EXIT_FAILURE;
 	}
+
+      return EXIT_SUCCESS;
     }
 
 private:
@@ -139,7 +159,7 @@ int main(int argc, char** argv)
 {
   RegisterParameterizedCFMApp app(argc, argv);
 
-  app.parse_config();
+  if(!app.parse_config()) return EXIT_FAILURE;
 
   return app.run();
 
