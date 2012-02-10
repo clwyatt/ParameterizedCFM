@@ -1,7 +1,7 @@
 {
   "number-bumps" : [7, 7],
-  "initial-spatial-scale-factor" : 2.0,
-  "initial-intensity-scale-factor" : 0.2,
+  "initial-spatial-scale-factor" : 0.2,
+  "initial-intensity-scale-factor" : 10.0,
   "regularizer-weight" : 1.0,
   "matching-weight" : 10,
   "roisize-weight" : 0.1

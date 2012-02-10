@@ -35,20 +35,22 @@ using std::endl;
 #include <string>
 using std::string;
 
-#include <cassert>
-
 #include <fstream>
 using std::ifstream;
-
-#include <itkImageFileReader.h>
-#include <itkImageFileWriter.h>
-#include <itkImage.h>
 
 // command line parsing
 #include "vul_arg.h"
 
 // configuration file parsing
 #include "json.h"
+
+// numerics
+#include <vnl/vnl_vector.h>
+#include <itkImageFileReader.h>
+#include <itkImageFileWriter.h>
+#include <itkImage.h>
+
+#include "ParameterInitialization.h"
 
 class RegisterParameterizedCFMApp
 {
@@ -73,6 +75,7 @@ public:
 
     }
 
+  // TODO this function is tooooo loooooong
   bool parse_config()
     {
       ifstream infile(configurationFileName.c_str());
@@ -95,10 +98,49 @@ public:
 	}
 
       // TODO add error handling below
+      if(root.isMember("number-bumps"))
+	{
+	Json::UInt index(0);
+	if(!root["number-bumps"].isValidIndex(index) )
+	  {
+	  cout << "Warning: number-bumps-x not in configuration." << endl;
+	  }
+	index = 1;
+	if(!root["number-bumps"].isValidIndex(index) )
+	  {
+	  cout << "Warning: number-bumps-y not in configuration." << endl;
+	  }
+	}
+      else
+	{
+	cout << "Warning: number-bumps not in configuration." << endl;
+	}
+
+      if(!root.isMember("initial-spatial-scale-factor"))
+	{
+	cout << "Warning: initial-spatial-scale-factor not in configuration." << endl;
+	}
+      if(!root.isMember("initial-intensity-scale-factor"))
+	{
+	cout << "Warning: initial-intensity-scale-factor not in configuration." << endl;
+	}
+      if(!root.isMember("regularizer-weight"))
+	{
+	cout << "Warning: regularizer-weight not in configuration." << endl;
+	}
+      if(!root.isMember("matching-weight"))
+	{
+	cout << "Warning: matching-weight not in configuration." << endl;
+	}
+      if(!root.isMember("roisize-weight"))
+	{
+	cout << "Warning: roisize-weight not in configuration." << endl;
+	}
+
+      // read all using defaults if not present
       const Json::Value bumps = root["number-bumps"];
       numberOfBumpsX = bumps[Json::UInt(0)].asInt();
       numberOfBumpsY = bumps[Json::UInt(1)].asInt();
-
       initialSpatialScaleFactor = root["initial-spatial-scale-factor"].asDouble();
       initialIntensityScaleFactor = root["initial-intensity-scale-factor"].asDouble();
       regularizerWeight = root["regularizer-weight"].asDouble();
@@ -113,6 +155,21 @@ public:
       itk::ImageFileReader< Image2DType >::Pointer targetReader =
 	itk::ImageFileReader< Image2DType >::New();
       targetReader->SetFileName(targetFileName);
+
+      try
+	{
+	targetReader->Update();
+	target = targetReader->GetOutput();
+	}
+      catch( itk::ExceptionObject & ex )
+	{
+	std::cerr << "Exception thrown while reading target.\n";
+	std::cerr << ex << std::endl;
+	return EXIT_FAILURE;
+	}
+
+      computeInitialParameters();
+      cout << "Number of optimization parameters = " << initialParameters.size() << endl;
 
       itk::ImageFileReader< Image2DType >::Pointer sourceReader =
 	itk::ImageFileReader< Image2DType >::New();
@@ -138,12 +195,41 @@ public:
       return EXIT_SUCCESS;
     }
 
+  void computeInitialParameters()
+    {
+      // get target image extents
+      Image2DType::RegionType targetRegion = target->GetLargestPossibleRegion();
+      Image2DType::SizeType targetSize = targetRegion.GetSize();
+      Image2DType::SpacingType targetSpacing = target->GetSpacing();
+      Image2DType::PointType targetOrigin = target->GetOrigin();
+      double xmin = targetOrigin[0];
+      double xmax = xmin+targetSize[0]*targetSpacing[0];
+      double ymin = targetOrigin[1];
+      double ymax = ymin+targetSize[1]*targetSpacing[1];
+
+      // compute initial parameters
+      ParameterOptions options;
+      options.numberCircles[0] = numberOfBumpsX;
+      options.numberCircles[1] = numberOfBumpsY;
+      options.weight = initialIntensityScaleFactor;
+      options.scale = initialSpatialScaleFactor;
+      options.xmin = xmin;
+      options.xmax = xmax;
+      options.ymin = ymin;
+      options.ymax = ymax;
+
+      initialize_levelset(options, initialParameters);
+
+    }
+
 private:
 
   std::string targetFileName;
   std::string sourceFileName;
   std::string configurationFileName;
   std::string outputFileName;
+
+  Image2DType::Pointer target;
 
   int numberOfBumpsX;
   int numberOfBumpsY;
@@ -152,6 +238,8 @@ private:
   double regularizerWeight;
   double matchingWeight;
   double roisizeWeight;
+
+  vnl_vector<double> initialParameters;
 
 };
 
