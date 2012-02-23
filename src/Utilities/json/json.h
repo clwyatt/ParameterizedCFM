@@ -5,6 +5,6 @@
 # include "json_value.h"
 # include "json_reader.h"
 # include "json_writer.h"
-# include "features.h"
+# include "json_features.h"
 
 #endif // JSON_JSON_H_INCLUDED
